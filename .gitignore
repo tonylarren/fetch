@@ -1,0 +1,6 @@
+secrets/*.json
+.env
+__pycache__/
+*.pyc
+.venv/
+requirements.lock.txt

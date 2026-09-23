@@ -1,0 +1,21 @@
+# Pin these after your first successful build: pip freeze > requirements.lock.txt
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30
+pydantic>=2.7
+pydantic-settings>=2.3
+python-multipart>=0.0.9
+
+redis>=5.0
+rq>=1.16
+
+google-api-python-client>=2.130
+google-auth>=2.29
+
+PyMuPDF>=1.24
+Pillow>=10.3
+numpy>=1.26,<2.0
+python-docx>=1.1
+
+# PaddleOCR. Versions move fast and the CPU wheel index is separate.
+# See docker/Dockerfile for the install line actually used.
+paddleocr>=2.9
