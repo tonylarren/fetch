@@ -1,0 +1,55 @@
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    # deliberately NOT published to the host
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    env_file: .env
+    ports:
+      - "127.0.0.1:8080:8080"   # nginx is the only thing that talks to it
+    volumes:
+      - ./secrets:/secrets:ro
+    depends_on: [redis]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: ["python", "-m", "app.worker"]
+    env_file: .env
+    volumes:
+      - ./secrets:/secrets:ro
+    depends_on: [redis]
+    restart: unless-stopped
+    deploy:
+      replicas: 1              # raise only after you measure RAM per worker
+      resources:
+        limits:
+          memory: 3g
+
+  poller:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: ["python", "-m", "app.poller"]
+    env_file: .env
+    volumes:
+      - ./secrets:/secrets:ro
+    depends_on: [redis]
+    restart: unless-stopped
+
+volumes:
+  redis-data:
